@@ -11,12 +11,16 @@ os.environ['SLACK_BOT_TOKEN'] = "xoxb-5749189164226-5766390357650-jekmTWcZjf8U0P
 
 def post_message(text):
     """슬랙 메세지 전송"""
-    # todo: 챗봇 꾸미기
     slack_bot_token = os.environ['SLACK_BOT_TOKEN']
     response = requests.post("https://slack.com/api/chat.postMessage",
                              headers={"Authorization": "Bearer " + slack_bot_token},
-                             data = {"channel": "crypto", "text": text}
+                             data = {"channel": "crypto",
+                                      "text": text, 
+                                      "username": "자동화 챗봇", 
+                                      "icon_emoji": ":robot_face:"}
                              )
+    print(text)
+
 # 가장 좋은 k값 구하기
 def get_ror(ticker, k=0.5):
     """변동성 돌파를 위해 이상적인 k값 구하기"""
@@ -24,6 +28,7 @@ def get_ror(ticker, k=0.5):
     df['range'] = (df['high'] - df['low']) * k
     df['target'] = df['open'] + df['range'].shift(1)
 
+    # 수수료는 일단 제외함
     df['ror'] = np.where(df['high'] - df['target'],
                          df['close'] / df['target'],
                          1)
@@ -45,7 +50,6 @@ def cal_target(ticker):
     yesterday_range = yesterday['high'] - yesterday['low']
     ror = get_ror(ticker)
     target = today['open'] + (yesterday_range) * ror
-    # print("목표가: ", target)
     return target
 
 access = os.environ['UPBIT_ACCESS_KEY']
@@ -58,6 +62,8 @@ ticker = "KRW-BTC"
 target = cal_target(ticker)
 op_mode = False # 첫 날에는 사지 않는다. (현재가가 목표가보다 한 참 위에 있을 때 매수될 수 있기 때문)
 hold = False # 현재 코인 보유 여부 
+
+# todo: 잔고의 몇 퍼센트를 투자할건지 정하기
 k = 0.1 # 잔고의 몇 퍼센트만큼 투자할건지 ex. 10퍼센트
 
 while True:
@@ -93,13 +99,11 @@ while True:
         # 1초마다 상태 출력중 -> 슬랙에 정해진 시간에 봇 출력하도록 혹은 매수/매도 진행했을 경우(특정 상황에 대해) 슬랙 메세지 쏘기
         # todo: 슬랙 쏘는 시간대 설정
         status = f"🔥 현재시간 : {now}, 목표가: {target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}"
-        print(f"🔥 현재시간 : {now}, 목표가: {target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}")
         post_message(status)
 
         time.sleep(1)
 
     except Exception as e:
             error = f"❌에러 발생: {e}"
-            print(error)
             post_message(error)
             time.sleep(1)

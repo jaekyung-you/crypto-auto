@@ -252,7 +252,7 @@ def try_buy(portfolio, prices, targets, ma5s, budget_per_coin, holdings, high_pr
 
 
 def retry_sell(ticker, unit, retry_cnt=10):
-    '''ㅇ
+    '''
     retry count 만큼 매도 시도
     :param ticker: 티커
     :param unit: 매도 수량

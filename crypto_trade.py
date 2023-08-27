@@ -101,7 +101,8 @@ def inquiry_cur_prices(portfolio):
     '''
     try:
         return pyupbit.get_current_price(portfolio)
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: inquiry_cur_prices {e}")
         return None
 
 
@@ -131,7 +132,8 @@ def select_portfolio(tickers, window=5):
                 portfolio.append(x[0])
 
         return portfolio
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: select_portfolio {e}")
         return None
 
 
@@ -149,7 +151,8 @@ def cal_target(ticker):
         yesterday_low = yesterday['low']
         target = today_open + (yesterday_high - yesterday_low) * LARRY_K
         return target
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: cal_target {e}")
         return None
 
 
@@ -163,7 +166,8 @@ def inquiry_high_prices(tickers):
             high_prices[ticker] = today_high
 
         return high_prices
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: inquiry_high_prices {e}")
         return  {ticker:0 for ticker in tickers}
 
 
@@ -192,7 +196,8 @@ def cal_moving_average(ticker="BTC", window=5):
         ma_series = close.rolling(window=window).mean()
         yesterday_ma = ma_series[-2]
         return yesterday_ma
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: cal_moving_average {e}")
         return None
 
 
@@ -247,7 +252,8 @@ def try_buy(portfolio, prices, targets, ma5s, budget_per_coin, holdings, high_pr
 
                 time.sleep(INTERVAL)
                 holdings[ticker] = True
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: try_buy {e}")
         print("try buy error")
 
 
@@ -275,7 +281,8 @@ def retry_sell(ticker, unit, retry_cnt=10):
                 print("SELL API CALLED", ticker, buy_price, min_unit)
 
             retry_cnt = retry_cnt - 1
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: retry_sell {e}")
         print("retry sell error")
 
 def try_sell(tickers):
@@ -306,7 +313,8 @@ def try_sell(tickers):
                         retry_sell(ticker, unit, 10)
                 else:
                     print("SELL API CALLED", ticker, buy_price, min_unit)
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: try_sell {e}")
         print("try sell error")
 
 
@@ -364,7 +372,8 @@ def try_trailling_stop(portfolio, prices, targets, holdings, high_prices):
                         print("trailing stop", ticker, buy_price, min_unit)
 
                     holdings[ticker] = False
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: try_trailling_stop {e}")
         print("try trailing stop error")
 
 def cal_budget():
@@ -381,7 +390,8 @@ def cal_budget():
                 break
         budget_per_coin = int(krw_balance / COIN_NUMS)
         return budget_per_coin
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: cal_budget {e}")
         return 0
 
 
@@ -399,7 +409,8 @@ def update_high_prices(tickers, high_prices, cur_prices):
             high_price = high_prices[ticker]
             if cur_price > high_price:
                 high_prices[ticker] = cur_price
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: update_high_prices {e}")
         pass
 
 
@@ -419,7 +430,8 @@ def print_status(portfolio, now, prices, targets, high_prices):
         print(portfolio)
         for ticker in portfolio:
             print("{:<10} 목표가: {:>8} 현재가: {:>8} 고가: {:>8}".format(ticker, int(targets[ticker]), int(prices[ticker]), int(high_prices[ticker])))
-    except:
+    except Exception as e:
+        post_message(f"❌ 에러 발생: print_status {e}")
         pass
 
 

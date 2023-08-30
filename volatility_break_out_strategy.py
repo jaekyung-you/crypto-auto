@@ -111,7 +111,8 @@ while True:
             # todo: 얼마나 매수 했는지 슬랙 호출
 
         # 매 시간마다 || 매수하게 되었을 때 슬랙 호출
-        if now.minute == 0 or hold is True: 
+        isNewHour = now.minute == 0 and now.second == 0
+        if isNewHour or hold is True: 
             status = f"🔥 현재시간 : {now}, 목표가: {target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}"
             post_message(status)
 

@@ -35,7 +35,8 @@ def get_ror(ticker, k=0.5):
     
     # 누적 곱에서 -2 인덱스?
     ror = df['ror'].cumprod()[-2]
-    print("그 날의 ror", ror)
+    post_message(f"오늘의 ror: {ror}")
+    print("오늘의 ror", ror)
     return ror
 
 def cal_target(ticker):
@@ -66,6 +67,15 @@ hold = False # 현재 코인 보유 여부
 # todo: 잔고의 몇 퍼센트를 투자할건지 정하기
 k = 0.1 # 잔고의 몇 퍼센트만큼 투자할건지 ex. 10퍼센트
 
+#----------------------------------------------------------------------------------------------------------------------
+# 보충할 사항 
+# 1. 단타: 거래대금 많은 순 그날 1개 지정
+#   - 거래대금 계산법
+# 2. 장타: 비트코인 & 이더리움 소량 매수
+#   - 평단보다 10퍼센트 하락하는 경우 추가매수
+#   - 
+#----------------------------------------------------------------------------------------------------------------------
+
 while True:
     try:
         now = datetime.datetime.now()
@@ -74,7 +84,9 @@ while True:
         if now.hour == 8 and now.minute == 59 and 50 <= now.second <= 59:
             if op_mode is True and hold is True:
                 btc_balance = upbit.get_balance(ticker)
-                upbit.sell_market_ordert(ticker, btc_balance)
+                sell_resposne = upbit.sell_market_ordert(ticker, btc_balance)
+                status = f"🔥 매도 시도: ${sell_resposne}"
+                post_message(status)
                 hold = False # 팔았으므로 보유 상태 False
                 # todo: 얼마나 매도 했는지 슬랙 호출
             
@@ -92,14 +104,16 @@ while True:
         # 매 초마다 조건 확인 후, 매수 시도
         if op_mode is True and hold is False and price is not None and price >= target:
             krw_balance = upbit.get_balance("KRW") # 우선 원화 잔고 조회
-            upbit.buy_market_order(ticker, krw_balance * k)
+            buy_resposne = upbit.buy_market_order(ticker, krw_balance * k)
+            status = f"🔥 매수 시도: ${buy_resposne}"
+            post_message(status)
             hold = True  # 보유 상태를 True, 한 번 사면 더 이상 매수하지 않을 것
             # todo: 얼마나 매수 했는지 슬랙 호출
 
-        # 1초마다 상태 출력중 -> 슬랙에 정해진 시간에 봇 출력하도록 혹은 매수/매도 진행했을 경우(특정 상황에 대해) 슬랙 메세지 쏘기
-        # todo: 슬랙 쏘는 시간대 설정
-        status = f"🔥 현재시간 : {now}, 목표가: {target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}"
-        post_message(status)
+        # 매 시간마다 || 매수하게 되었을 때 슬랙 호출
+        if now.minute == 0 or hold is True: 
+            status = f"🔥 현재시간 : {now}, 목표가: {target} 현재가: {price} 보유상태: {hold} 동작상태: {op_mode}"
+            post_message(status)
 
         time.sleep(1)
 

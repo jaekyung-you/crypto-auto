@@ -102,7 +102,7 @@ def inquiry_cur_prices(portfolio):
     try:
         return pyupbit.get_current_price(portfolio)
     except Exception as e:
-        post_message(f"❌ 에러 발생: inquiry_cur_prices {e}")
+        # post_message(f"❌ 에러 발생: inquiry_cur_prices {e}")
         return None
 
 
@@ -133,7 +133,7 @@ def select_portfolio(tickers, window=5):
 
         return portfolio
     except Exception as e:
-        post_message(f"❌ 에러 발생: select_portfolio {e}")
+        # post_message(f"❌ 에러 발생: select_portfolio {e}")
         return None
 
 
@@ -152,7 +152,7 @@ def cal_target(ticker):
         target = today_open + (yesterday_high - yesterday_low) * LARRY_K
         return target
     except Exception as e:
-        post_message(f"❌ 에러 발생: cal_target {e}")
+        # post_message(f"❌ 에러 발생: cal_target {e}")
         return None
 
 
@@ -197,7 +197,7 @@ def cal_moving_average(ticker="BTC", window=5):
         yesterday_ma = ma_series[-2]
         return yesterday_ma
     except Exception as e:
-        post_message(f"❌ 에러 발생: cal_moving_average {e}")
+        # post_message(f"❌ 에러 발생: cal_moving_average {e}")
         return None
 
 
@@ -253,7 +253,7 @@ def try_buy(portfolio, prices, targets, ma5s, budget_per_coin, holdings, high_pr
                 time.sleep(INTERVAL)
                 holdings[ticker] = True
     except Exception as e:
-        post_message(f"❌ 에러 발생: try_buy {e}")
+        # post_message(f"❌ 에러 발생: try_buy {e}")
         print("try buy error")
 
 
@@ -282,7 +282,7 @@ def retry_sell(ticker, unit, retry_cnt=10):
 
             retry_cnt = retry_cnt - 1
     except Exception as e:
-        post_message(f"❌ 에러 발생: retry_sell {e}")
+        # post_message(f"❌ 에러 발생: retry_sell {e}")
         print("retry sell error")
 
 def try_sell(tickers):
@@ -314,7 +314,7 @@ def try_sell(tickers):
                 else:
                     print("SELL API CALLED", ticker, buy_price, min_unit)
     except Exception as e:
-        post_message(f"❌ 에러 발생: try_sell {e}")
+        # post_message(f"❌ 에러 발생: try_sell {e}")
         print("try sell error")
 
 
@@ -373,7 +373,7 @@ def try_trailling_stop(portfolio, prices, targets, holdings, high_prices):
 
                     holdings[ticker] = False
     except Exception as e:
-        post_message(f"❌ 에러 발생: try_trailling_stop {e}")
+        # post_message(f"❌ 에러 발생: try_trailling_stop {e}")
         print("try trailing stop error")
 
 def cal_budget():
@@ -391,7 +391,7 @@ def cal_budget():
         budget_per_coin = int(krw_balance / COIN_NUMS)
         return budget_per_coin
     except Exception as e:
-        post_message(f"❌ 에러 발생: cal_budget {e}")
+        # post_message(f"❌ 에러 발생: cal_budget {e}")
         return 0
 
 
@@ -410,7 +410,7 @@ def update_high_prices(tickers, high_prices, cur_prices):
             if cur_price > high_price:
                 high_prices[ticker] = cur_price
     except Exception as e:
-        post_message(f"❌ 에러 발생: update_high_prices {e}")
+        # post_message(f"❌ 에러 발생: update_high_prices {e}")
         pass
 
 
@@ -431,7 +431,7 @@ def print_status(portfolio, now, prices, targets, high_prices):
         for ticker in portfolio:
             print("{:<10} 목표가: {:>8} 현재가: {:>8} 고가: {:>8}".format(ticker, int(targets[ticker]), int(prices[ticker]), int(high_prices[ticker])))
     except Exception as e:
-        post_message(f"❌ 에러 발생: print_status {e}")
+        # post_message(f"❌ 에러 발생: print_status {e}")
         pass
 
 
@@ -443,11 +443,12 @@ now = datetime.datetime.now()                                           # 현재
 sell_time1, sell_time2 = make_sell_times(now)                           # 초기 매도 시간 설정
 setup_time1, setup_time2 = make_setup_times(now)                        # 초기 셋업 시간 설정
 
-tickers = pyupbit.get_tickers(fiat="KRW")                              # 티커 리스트 얻기
+tickers = pyupbit.get_tickers(fiat="KRW")
+print("tickers:", tickers)                              # 티커 리스트 얻기
 portfolio = select_portfolio(tickers)                                   # 듀얼 노이즈 전략 기반으로 portfolio 선정
 
-targets = inquiry_targets(portfolio)                                    # 코인별 목표가 계산
-mas = inquiry_moving_average(portfolio)                                 # 코인별로 5일 이동평균 계산
+targets = inquiry_targets(tickers)                                    # 코인별 목표가 계산
+mas = inquiry_moving_average(tickers)                                 # 코인별로 5일 이동평균 계산
 budget_per_coin = cal_budget()                                          # 코인별 최대 배팅 금액 계산
 
 holdings = {ticker:False for ticker in portfolio}                     # 보유 상태 초기화

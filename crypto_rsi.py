@@ -88,11 +88,12 @@ def rsi(ohlc: pandas.DataFrame, period: int = 14):
     return pandas.Series(100 - (100 / (1 + RS)), name= "RSI")
 
 
-def record(trade, diff):
-     """엑셀에 기록할거면 xlsx 필요"""
-     wb = load_workbook('')
+# def record(trade, diff):
+#      """엑셀에 기록할거면 xlsx 필요"""
+#      wb = load_workbook('')
 
-ticker_list = ["KRW-BTC", "KRW-XRP", "KRW-ETC", "KRW-ETH", "KRW-BCH", "KRW-EOS"]
+# todo: 거래대금 높으면서, 많이 언급되는 캐시 위주 -> 추후 거래대금 위주로 변경하기 
+ticker_list = ["KRW-BTC", "KRW-XRP", "KRW-ETC", "KRW-ETH", "KRW-BCH", "KRW-GRS"]
 lower28 = []
 higher70 = []
 
@@ -117,10 +118,12 @@ while True:
 
             if now_rsi <= 28:
                  lower28[i] = True
+
             elif now_rsi >= 33 and lower28[i] == True:
                  # 28이하에서 33으로 반등했을 때, 매수
                  buy(ticker_list[i])
                  lower28[i] = False
+                 
             elif now_rsi >= 70 and higher70[i] == False:
                  # 70이상에 아직 매도하지 않았다면, 매도
                  sell(ticker_list[i])

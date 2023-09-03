@@ -122,6 +122,7 @@ def select_portfolio(tickers, window=5):
             noise = 1 - abs(df['open'] - df['close']) / (df['high'] - df['low'])
             average_noise = noise.rolling(window=window).mean()
             noise_list.append((ticker, average_noise[-2]))
+            time.sleep(0.1)
 
         # noise가 낮은 순으로 정렬
         sorted_noise_list = sorted(noise_list, key=lambda x:x[1])
@@ -164,6 +165,8 @@ def inquiry_high_prices(tickers):
             today = df.iloc[-1]
             today_high = today['high']
             high_prices[ticker] = today_high
+            print(f"high_prices: {high_prices}")
+            time.sleep(0.1)
 
         return high_prices
     except Exception as e:
@@ -314,7 +317,7 @@ def try_sell(tickers):
                 else:
                     print("SELL API CALLED", ticker, buy_price, min_unit)
     except Exception as e:
-        # post_message(f"❌ 에러 발생: try_sell {e}")
+        post_message(f"❌ 에러 발생: try_sell {e}")
         print("try sell error")
 
 
@@ -373,7 +376,7 @@ def try_trailling_stop(portfolio, prices, targets, holdings, high_prices):
 
                     holdings[ticker] = False
     except Exception as e:
-        # post_message(f"❌ 에러 발생: try_trailling_stop {e}")
+        post_message(f"❌ 에러 발생: try_trailling_stop {e}")
         print("try trailing stop error")
 
 def cal_budget():
@@ -447,8 +450,8 @@ tickers = pyupbit.get_tickers(fiat="KRW")
 print("tickers:", tickers)                              # 티커 리스트 얻기
 portfolio = select_portfolio(tickers)                                   # 듀얼 노이즈 전략 기반으로 portfolio 선정
 
-targets = inquiry_targets(tickers)                                    # 코인별 목표가 계산
-mas = inquiry_moving_average(tickers)                                 # 코인별로 5일 이동평균 계산
+targets = inquiry_targets(portfolio)                                    # 코인별 목표가 계산
+mas = inquiry_moving_average(portfolio)                                 # 코인별로 5일 이동평균 계산
 budget_per_coin = cal_budget()                                          # 코인별 최대 배팅 금액 계산
 
 holdings = {ticker:False for ticker in portfolio}                     # 보유 상태 초기화

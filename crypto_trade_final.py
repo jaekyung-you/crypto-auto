@@ -101,7 +101,7 @@ def get_ror(ticker, k=0.5):
     # 누적 곱에서 -2 인덱스?
     ror = df['ror'].cumprod()[-2]
     # post_message(f"오늘의 ror: {ror}")
-    print("오늘의 ror", ror)
+    # print("오늘의 ror", ror)
     return ror
 
 
@@ -149,7 +149,7 @@ while True:
         # todo: ticker_list에서 변동성이 크고 거래대금이 큰 코인들 5종목 정도 추출
         now = datetime.datetime.now()
 
-        print(f"현재시간: {now}")
+        # print(f"현재시간: {now}")
 
         # print("🔥RSI 전략🔥 시작!!")
 

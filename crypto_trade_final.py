@@ -149,10 +149,6 @@ while True:
         # todo: ticker_list에서 변동성이 크고 거래대금이 큰 코인들 5종목 정도 추출
         now = datetime.datetime.now()
 
-        # print(f"현재시간: {now}")
-
-        # print("🔥RSI 전략🔥 시작!!")
-
         # RSI 전략 시작
         for i in range(len(ticker_list)):
             # 28이하, 70이상 각 코인에 대한 정보 초기화
@@ -168,12 +164,16 @@ while True:
 
             elif now_rsi >= 33 and lower28[i] == True:
                 # 28이하에서 33으로 반등했을 때, 매수
-                buy(ticker_list[i])
+                rsi_buy_response = buy(ticker_list[i])
                 lower28[i] = False
+                status = f"💛 rsi_buy_response: {rsi_buy_response}"
+                post_message(status)
 
             elif now_rsi >= 70 and higher70[i] == False:
                 # 70이상에 아직 매도하지 않았다면, 매도
-                sell(ticker_list[i])
+                rsi_sell_response = sell(ticker_list[i])
+                status = f"💛 rsi_sell_response: {rsi_sell_response}"
+                post_message(status)
                 higher70[i] = True
 
             elif now_rsi <= 60:
@@ -183,15 +183,12 @@ while True:
         time.sleep(0.5)
 
         # 변동성 돌파 전략
-
-        # print("🔥변동성 돌파 전략🔥 시작!!\n")
-
         # 매도 시도 8:59:50~59
         if now.hour == 8 and now.minute == 59 and 50 <= now.second <= 59:
             if op_mode is True and hold is True:
                 btc_balance = upbit.get_balance(ticker)
                 sell_resposne = upbit.sell_market_ordert(ticker, btc_balance)
-                status = f"🔥 매도 시도: ${sell_resposne}"
+                status = f"🔥 매도 시도: {sell_resposne}"
                 post_message(status)
                 hold = False  # 팔았으므로 보유 상태 False
 
@@ -210,7 +207,7 @@ while True:
         if op_mode is True and hold is False and price is not None and price >= target:
             krw_balance = upbit.get_balance("KRW")  # 우선 원화 잔고 조회
             buy_resposne = upbit.buy_market_order(ticker, krw_balance * k)
-            status = f"🔥 매수 시도: ${buy_resposne}"
+            status = f"🔥 매수 시도: {buy_resposne}"
             post_message(status)
             hold = True  # 보유 상태를 True, 한 번 사면 더 이상 매수하지 않을 것
 
@@ -228,6 +225,7 @@ while True:
         my_balance = get_my_account()
         status = f"{my_balance}"  
         # 가독성 편하게 수정 필요
+        # post_message(" 📝 firstReport" + status)
 
         if firstReport or hold is True:
             post_message(" 📝 firstReport" + status)

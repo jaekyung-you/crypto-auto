@@ -29,7 +29,6 @@ def post_message(text):
 def buy(ticker):
     try:
         money = upbit.get_balance("KRW")  # 보유 원화 조회
-
         if money <= 1000:
             return
 
@@ -272,8 +271,6 @@ def long_term_hold():
                 if buy_response is not None:
                     status = f"💛 long_term_hold_buy: {buy_response}"
                     post_message(status)
-                else:
-                    print("없음!!!!!")
             else:
                 print(f"{ticker} 가격은 {current_price}로 아직 추가 매수 기준에 미치지 못했습니다.")
         
@@ -288,7 +285,6 @@ def long_term_hold():
 #-------------------------------------------------------------------
 # todo: 거래대금 높으면서, 많이 언급되는 캐시 위주 -> 추후 거래대금 위주로 변경하기
 # todo: 잔고의 몇 퍼센트를 투자할건지 정하기
-#
 #-------------------------------------------------------------------
 
 
